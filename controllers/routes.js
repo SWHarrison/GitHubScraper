@@ -1,5 +1,7 @@
 var request = require('request');
 var cheerio = require('cheerio');
+const DayData = require('../models/dayData');
+const User = require('../models/user');
 
 module.exports = app => {
 
@@ -134,7 +136,7 @@ module.exports = app => {
             sum += parseInt(months[month][dayData])
           }
           monthAvg.push({
-            Day: monthNames[month],
+            Month: monthNames[month],
             totalContributions: sum,
             averageContributions: sum/months[month].length
           })

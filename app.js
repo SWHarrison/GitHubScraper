@@ -12,6 +12,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 app.use(expressValidator());
 
+require('./data/githubContributions-db.js');
+
 const route = require('./controllers/routes.js');
 
 var exphbs = require('express-handlebars');
