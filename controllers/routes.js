@@ -71,10 +71,11 @@ module.exports = app => {
         for (day in days){
           let sum = 0
           for (dayData in days[day]){
-            sum += days[day][dayData]
+            sum += parseInt(days[day][dayData])
           }
           daysAvg.push({
             Day: dayNames[day],
+            totalContributions: sum,
             averageContributions: sum/days[day].length
           })
         }
