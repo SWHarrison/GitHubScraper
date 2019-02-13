@@ -27,6 +27,22 @@ module.exports = app => {
             // console.log('added obj')
         })
         console.log('returning data')
+        User.findOne({
+          username: req.params.user
+        }).then(user => {
+          if (!user) {
+            new_user = new User()
+            new_user.username = req.params.user
+            new_user.numberOfRequests = 1
+            console.log(new_user)
+            new_user.save()
+          } else {
+            console.log("found user")
+            console.log(user)
+            user.numberOfRequests += 1
+            user.save()
+          }
+        })
         res.json(data)
       }
     })
