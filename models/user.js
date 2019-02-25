@@ -13,6 +13,7 @@ const UserSchema = new Schema({
   numberOfRequests: {type: Number}
 });
 
+// Code block to update time requests, moved to controllers
 /* UserSchema.pre("save", function(next) {
   // SET firstRequest AND mostRecentRequest
   console.log("this ran the userschema")

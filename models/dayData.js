@@ -1,3 +1,5 @@
+// Unused model for each day's data
+
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 

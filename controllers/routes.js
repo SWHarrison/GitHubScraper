@@ -1,7 +1,38 @@
 var request = require('request');
 var cheerio = require('cheerio');
-const DayData = require('../models/dayData');
+// const DayData = require('../models/dayData');
 const User = require('../models/user');
+
+function userCheck (username){
+  console.log("searching for " + username)
+  User.findOne({
+    username: username
+  }).then(user => {
+    if (!user) {
+      new_user = new User()
+      new_user.firstRequest = new Date();
+      new_user.mostRecentRequest = new Date();
+      new_user.username = username;
+      new_user.numberOfRequests = 1
+      console.log(new_user)
+      new_user.save()
+    } else {
+      console.log("found user")
+      console.log(user)
+      now = new Date();
+      console.log(now.getTime());
+      console.log(user.mostRecentRequest.getTime());
+      console.log(now.getTime() - user.mostRecentRequest.getTime());
+      if(now.getTime() - user.mostRecentRequest.getTime() > 5000){
+        user.mostRecentRequest = now;
+        user.numberOfRequests += 1
+        console.log("updated requests")
+      }
+      console.log(user)
+      user.save()
+    }
+  })
+}
 
 module.exports = app => {
 
@@ -9,34 +40,7 @@ module.exports = app => {
 
   app.get('/:user', (req, res) => {
 
-    console.log("searching for " + req.params.user)
-    User.findOne({
-      username: req.params.user
-    }).then(user => {
-      if (!user) {
-        new_user = new User()
-        new_user.firstRequest = new Date();
-        new_user.mostRecentRequest = new Date();
-        new_user.username = req.params.user;
-        new_user.numberOfRequests = 1
-        console.log(new_user)
-        new_user.save()
-      } else {
-        console.log("found user")
-        console.log(user)
-        now = new Date();
-        console.log(now.getTime());
-        console.log(user.mostRecentRequest.getTime());
-        console.log(now.getTime() - user.mostRecentRequest.getTime());
-        if(now.getTime() - user.mostRecentRequest.getTime() > 5000){
-          user.mostRecentRequest = now;
-          user.numberOfRequests += 1
-          console.log("updated requests")
-        }
-        console.log(user)
-        user.save()
-      }
-    })
+    userCheck(req.params.user);
     let data = [];
 
     request('https://github.com/' + req.params.user, function (error, response, html) {
@@ -64,6 +68,7 @@ module.exports = app => {
 
   app.get('/:user/daily', (req, res) => {
 
+    userCheck(req.params.user);
     let data = [];
 
     request('https://github.com/' + req.params.user, function (error, response, html) {
@@ -111,14 +116,15 @@ module.exports = app => {
             averageContributions: sum/days[day].length
           })
         }
-        console.log(daysAvg)
-        res.json(daysAvg)
+        console.log(daysAvg);
+        res.json(daysAvg);
       }
     })
   })
 
   app.get('/:user/monthly', (req, res) => {
 
+    userCheck(req.params.user);
     let data = [];
 
     request('https://github.com/' + req.params.user, function (error, response, html) {
@@ -154,25 +160,25 @@ module.exports = app => {
           11: []
         }
         for (item in data){
-          day = new Date(data[item].dataDate)
-          months[day.getMonth()].push(data[item].contribution)
+          day = new Date(data[item].dataDate);
+          months[day.getMonth()].push(data[item].contribution);
         }
-        console.log(months)
+        console.log(months);
         monthNames = ['January' , 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
         monthAvg = []
         for (month in months){
           let sum = 0
           for (dayData in months[month]){
-            sum += parseInt(months[month][dayData])
+            sum += parseInt(months[month][dayData]);
           }
           monthAvg.push({
             Month: monthNames[month],
             totalContributions: sum,
             averageContributions: sum/months[month].length
-          })
+          });
         }
-        console.log(monthAvg)
-        res.json(monthAvg)
+        console.log(monthAvg);
+        res.json(monthAvg);
       }
     })
   })
