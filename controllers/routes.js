@@ -5,6 +5,8 @@ const User = require('../models/user');
 
 module.exports = app => {
 
+  app.get('/favicon.ico', (req, res) => {res.status(204)});
+
   app.get('/:user', (req, res) => {
 
     console.log("searching for " + req.params.user)
@@ -13,14 +15,25 @@ module.exports = app => {
     }).then(user => {
       if (!user) {
         new_user = new User()
-        new_user.username = req.params.user
+        new_user.firstRequest = new Date();
+        new_user.mostRecentRequest = new Date();
+        new_user.username = req.params.user;
         new_user.numberOfRequests = 1
         console.log(new_user)
         new_user.save()
       } else {
         console.log("found user")
         console.log(user)
-        user.numberOfRequests += 1
+        now = new Date();
+        console.log(now.getTime());
+        console.log(user.mostRecentRequest.getTime());
+        console.log(now.getTime() - user.mostRecentRequest.getTime());
+        if(now.getTime() - user.mostRecentRequest.getTime() > 5000){
+          user.mostRecentRequest = now;
+          user.numberOfRequests += 1
+          console.log("updated requests")
+        }
+        console.log(user)
         user.save()
       }
     })
