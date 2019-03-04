@@ -1,13 +1,13 @@
 var request = require('request');
 var cheerio = require('cheerio');
-const bodyParser = require('body-parser');
-const expressValidator = require('express-validator');
+//const bodyParser = require('body-parser');
+//const expressValidator = require('express-validator');
 
 const express = require('express')
 const app = express()
 
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: false }));
 //app.use(cookieParser());
 
 app.use(expressValidator());
