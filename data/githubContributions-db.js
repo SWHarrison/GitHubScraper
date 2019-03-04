@@ -4,7 +4,7 @@ assert = require("assert");
 
 const url = "mongodb://localhost/githubContributions-db";
 mongoose.Promise = global.Promise;
-mongoose.connect(
+mongoose.connect(process.env.MONGODB_URI ||
   "mongodb://localhost/githubContributions-db",
   { useMongoClient: true }
 );
