@@ -104,7 +104,7 @@ module.exports = app => {
     new_key.mostRecentRequest = now;
     new_key.requests = [];
     let apiKey = "";
-    for (let i = 0; i < 50; i += 1){
+    for (let i = 0; i < 15; i += 1){
       let num = Math.floor(Math.random() * 62)
       if (num < 10){
         const digit = String.fromCharCode(num + 48)
