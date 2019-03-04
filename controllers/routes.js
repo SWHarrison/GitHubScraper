@@ -37,6 +37,10 @@ function userCheck (username){
 
 module.exports = app => {
 
+  app.get('/'), (req,res) =>{
+    res.redirect('/SWHarrison');
+  });
+  
   app.get('/favicon.ico', (req, res) => {res.status(204)});
 
   app.get('/admin/request/:anything', (req, res) => {
