@@ -31,8 +31,16 @@ Returns data for all requests made by the API.
 
 Returns data for the requests made for a specific user.
 
-## Github Repo
+## Helpful links
+
+Github pages:
+
+https://swharrison.github.io/GitHubScraper/
 
 Follow me for more updates!
 
 https://github.com/SWHarrison/GitHubScraper
+
+Live version:
+
+https://githubscraper-swharrison.herokuapp.com
