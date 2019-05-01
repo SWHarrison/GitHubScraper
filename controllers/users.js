@@ -1,8 +1,6 @@
 var request = require('request');
 var cheerio = require('cheerio');
-// const DayData = require('../models/dayData');
 const User = require('../models/user');
-const Key = require('../models/key');
 
 function userCheck (username){
   console.log("searching for " + username)
@@ -33,6 +31,7 @@ function userCheck (username){
   })
 }
 
+// Returns raw data scrapped from a user's github page
 function webScrape(username){
 
   return new Promise(resolve => {
@@ -40,7 +39,7 @@ function webScrape(username){
     request('https://github.com/' + username, function (error, response, html) {
       if (!error && response.statusCode == 200) {
         var $ = cheerio.load(html);
-        //Grabs information from given page, goes to item with id #Current_officeholders
+        //Grabs information on user's contributions from their github page
         $('div.js-calendar-graph > svg > g > g > rect').each(function(i, element){
             const contributions = $(this).attr('data-count');
             const dataDate = $(this).attr('data-date');
@@ -62,11 +61,13 @@ module.exports = app => {
     res.redirect('/SWHarrison');
   });
 
+  // Catches favicon.ico requests
   app.get('/favicon.ico', (req, res) => {res.status(204)});
 
+  //Returns data for past year of github contributions
   app.get('/:user', async (req, res, next) => {
     try{
-      // userCheck(req.params.user);
+      userCheck(req.params.user);
       const data = await webScrape(req.params.user)
       console.log('returning data')
       res.json(data)
@@ -75,11 +76,12 @@ module.exports = app => {
     }
   })
 
+  //Returns data for past year of github contributions by day of week
   app.get('/:user/daily', async (req, res) => {
-
     try{
-      // userCheck(req.params.user);
+      userCheck(req.params.user);
       const data = await webScrape(req.params.user)
+
       let days = {
         0: [],
         1: [],
@@ -89,12 +91,16 @@ module.exports = app => {
         5: [],
         6: []
       }
+
+      // Gets day of each data point's date and adds it to appropriate index
       for (item in data){
         day = new Date(data[item].dataDate)
         days[day.getDay()].push(data[item].contribution)
       }
       dayNames = ['Sunday' , 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
       daysAvg = []
+
+      // Averages total contributions for each day of week
       for (day in days){
         let sum = 0
         for (dayData in days[day]){
@@ -113,11 +119,12 @@ module.exports = app => {
     }
   })
 
+  //Returns data for past year of github contributions by month of year
   app.get('/:user/monthly', async (req, res) => {
-
     try{
-      // userCheck(req.params.user);
+      userCheck(req.params.user);
       const data = await webScrape(req.params.user)
+
       let months = {
         0: [],
         1: [],
@@ -132,10 +139,14 @@ module.exports = app => {
         10: [],
         11: []
       }
+
+      // Gets day of each data point's date and adds it to appropriate index
       for (item in data){
         day = new Date(data[item].dataDate);
         months[day.getMonth()].push(data[item].contribution);
       }
+
+      // Averages total contributions for each day of week
       monthNames = ['January' , 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
       monthAvg = []
       for (month in months){
@@ -154,88 +165,5 @@ module.exports = app => {
     } catch (err){
       next(err)
     }
-  })
-
-  app.get('/admin/request/:anything', (req, res) => {
-    return res.status(401).send({
-      message: "Admin requests requires key"
-    });
-  });
-
-  app.get('/admin/request/all/:key', (req, res) => {
-    key = req.params.key;
-    Key.findOne({
-      key: key
-    }).then(key => {
-      if(!key){
-        return res.status(401).send({
-          message: "Invalid Key"
-        });
-      } else {
-        console.log("found key");
-        now = new Date();
-        if(now.getTime() - key.mostRecentRequest.getTime() > 5000){
-          key.mostRecentRequest = now;
-          key.requests.push("All users");
-          console.log("updated requests")
-          key.save()
-        }
-        User.find().then(users => {
-          res.json(users);
-        });
-      }
-    });
-  });
-
-  app.get('/admin/request/:user/:key', (req, res) => {
-    key = req.params.key;
-    Key.findOne({
-      key: key
-    }).then(key => {
-      if(!key){
-        return res.status(401).send({
-          message: "Invalid Key"
-        });
-      } else {
-        console.log("found key");
-        now = new Date();
-        if(now.getTime() - key.mostRecentRequest.getTime() > 5000){
-          key.mostRecentRequest = now;
-          key.requests.push("user:" + req.params.user);
-          console.log("updated requests")
-          key.save()
-        }
-        User.findOne({
-          username: req.params.user
-        }).then(user => {
-          res.json(user);
-        });
-      }
-    });
-  })
-
-  app.get('/admin/keyRequest', (req, res) => {
-    new_key = new Key();
-    now = new Date();
-    new_key.createdAt = now;
-    new_key.mostRecentRequest = now;
-    new_key.requests = [];
-    let apiKey = "";
-    for (let i = 0; i < 15; i += 1){
-      let num = Math.floor(Math.random() * 62)
-      if (num < 10){
-        const digit = String.fromCharCode(num + 48)
-        apiKey = apiKey + digit;
-      } else if(num < 36){
-        const letter = String.fromCharCode(num + 55)
-        apiKey = apiKey + letter;
-      } else{
-        const letter = String.fromCharCode(num + 61);
-        apiKey = apiKey + letter;
-      }
-    }
-    new_key.key = apiKey;
-    new_key.save();
-    res.json(new_key);
   })
 }

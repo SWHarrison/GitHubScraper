@@ -14,7 +14,8 @@ app.use(expressValidator());
 
 require('./data/githubContributions-db.js');
 
-const route = require('./controllers/routes.js');
+const users = require('./controllers/users.js');
+const admin = require('./controllers/admin.js');
 
 var exphbs = require('express-handlebars');
 
@@ -22,7 +23,8 @@ app.engine('handlebars', exphbs({defaultLayout: 'main'}));
 app.set('view engine', 'handlebars');
 
 module.exports = app
-route(app)
+users(app)
+admin(app)
 
 app.listen(process.env.PORT || '4000', () => {
     console.log(`App listening on port 4000!`)
