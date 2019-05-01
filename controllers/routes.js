@@ -69,128 +69,91 @@ module.exports = app => {
       // userCheck(req.params.user);
       const data = await webScrape(req.params.user)
       console.log('returning data')
-      console.log(data)
       res.json(data)
     } catch (err){
       next(err)
     }
   })
 
-  app.get('/:user/daily', (req, res) => {
+  app.get('/:user/daily', async (req, res) => {
 
-    userCheck(req.params.user);
-    let data = [];
-
-    request('https://github.com/' + req.params.user, function (error, response, html) {
-      if (!error && response.statusCode == 200) {
-        var $ = cheerio.load(html);
-        //Grabs information from given page, goes to item with id #Current_officeholders
-        $('div.js-calendar-graph > svg > g > g > rect').each(function(i, element){
-            //console.log(raw)
-            const contributions = $(this).attr('data-count');
-            // console.log(contributions)
-            const dataDate = $(this).attr('data-date');
-            // console.log(dataDate)
-            let object = {
-              contribution: contributions,
-              dataDate: dataDate
-            };
-            data.push(object)
-            // console.log('added obj')
-        })
-        console.log('returning data')
-        let days = {
-          0: [],
-          1: [],
-          2: [],
-          3: [],
-          4: [],
-          5: [],
-          6: []
-        }
-        for (item in data){
-          day = new Date(data[item].dataDate)
-          days[day.getDay()].push(data[item].contribution)
-        }
-        console.log(days)
-        dayNames = ['Sunday' , 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
-        daysAvg = []
-        for (day in days){
-          let sum = 0
-          for (dayData in days[day]){
-            sum += parseInt(days[day][dayData])
-          }
-          daysAvg.push({
-            Day: dayNames[day],
-            totalContributions: sum,
-            averageContributions: sum/days[day].length
-          })
-        }
-        console.log(daysAvg);
-        res.json(daysAvg);
+    try{
+      // userCheck(req.params.user);
+      const data = await webScrape(req.params.user)
+      let days = {
+        0: [],
+        1: [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+        6: []
       }
-    })
+      for (item in data){
+        day = new Date(data[item].dataDate)
+        days[day.getDay()].push(data[item].contribution)
+      }
+      dayNames = ['Sunday' , 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+      daysAvg = []
+      for (day in days){
+        let sum = 0
+        for (dayData in days[day]){
+          sum += parseInt(days[day][dayData])
+        }
+        daysAvg.push({
+          Day: dayNames[day],
+          totalContributions: sum,
+          averageContributions: sum/days[day].length
+        })
+      }
+      res.json(daysAvg);
+      console.log('returning data')
+    } catch (err){
+      next(err)
+    }
   })
 
-  app.get('/:user/monthly', (req, res) => {
+  app.get('/:user/monthly', async (req, res) => {
 
-    userCheck(req.params.user);
-    let data = [];
-
-    request('https://github.com/' + req.params.user, function (error, response, html) {
-      if (!error && response.statusCode == 200) {
-        var $ = cheerio.load(html);
-        //Grabs information from given page, goes to item with id #Current_officeholders
-        $('div.js-calendar-graph > svg > g > g > rect').each(function(i, element){
-            //console.log(raw)
-            const contributions = $(this).attr('data-count');
-            // console.log(contributions)
-            const dataDate = $(this).attr('data-date');
-            // console.log(dataDate)
-            let object = {
-              contribution: contributions,
-              dataDate: dataDate
-            };
-            data.push(object)
-            // console.log('added obj')
-        })
-        console.log('returning data')
-        let months = {
-          0: [],
-          1: [],
-          2: [],
-          3: [],
-          4: [],
-          5: [],
-          6: [],
-          7: [],
-          8: [],
-          9: [],
-          10: [],
-          11: []
-        }
-        for (item in data){
-          day = new Date(data[item].dataDate);
-          months[day.getMonth()].push(data[item].contribution);
-        }
-        console.log(months);
-        monthNames = ['January' , 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        monthAvg = []
-        for (month in months){
-          let sum = 0
-          for (dayData in months[month]){
-            sum += parseInt(months[month][dayData]);
-          }
-          monthAvg.push({
-            Month: monthNames[month],
-            totalContributions: sum,
-            averageContributions: sum/months[month].length
-          });
-        }
-        console.log(monthAvg);
-        res.json(monthAvg);
+    try{
+      // userCheck(req.params.user);
+      const data = await webScrape(req.params.user)
+      let months = {
+        0: [],
+        1: [],
+        2: [],
+        3: [],
+        4: [],
+        5: [],
+        6: [],
+        7: [],
+        8: [],
+        9: [],
+        10: [],
+        11: []
       }
-    })
+      for (item in data){
+        day = new Date(data[item].dataDate);
+        months[day.getMonth()].push(data[item].contribution);
+      }
+      monthNames = ['January' , 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+      monthAvg = []
+      for (month in months){
+        let sum = 0
+        for (dayData in months[month]){
+          sum += parseInt(months[month][dayData]);
+        }
+        monthAvg.push({
+          Month: monthNames[month],
+          totalContributions: sum,
+          averageContributions: sum/months[month].length
+        });
+      }
+      console.log('returning data')
+      res.json(monthAvg);
+    } catch (err){
+      next(err)
+    }
   })
 
   app.get('/admin/request/:anything', (req, res) => {
